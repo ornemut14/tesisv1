@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Registro - GNC Rivadavia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="login.css" />
+  <style>
+    /* Mini estilos para el checklist (por si tu login.css no los tiene) */
+    .pwd-reqs{margin:8px 0 12px; padding-left:18px; font-size:.9rem; line-height:1.4}
+    .pwd-reqs li{margin:2px 0}
+    .ok{color:#1b7f4b; font-weight:600}
+    .bad{color:#b00020; font-weight:600}
+    .hint{font-size:.85rem; color:#666; margin-top:6px}
+    .toggle-eye{cursor:pointer; font-size:.85rem; margin-left:6px; color:#016b3b; text-decoration:underline}
+    .inline-input{display:flex; align-items:center; gap:6px}
+    .error-text{color:#b00020; font-size:.85rem; display:none; margin-top:4px}
+    .disabled{opacity:.6; pointer-events:none}
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <!-- FORMULARIO LOGIN -->
+    <div id="form-login">
+      <h2>Ingresar al Sistema</h2>
+      <form action="procesar_login.php" method="POST" novalidate>
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Contraseña</label>
+        <div class="inline-input">
+          <input type="password" id="password" name="password" required />
+          <span class="toggle-eye" onclick="toggleShow('password')">mostrar</span>
+        </div>
+
+        <button class="btn-login" type="submit">Iniciar sesión</button>
+      </form>
+      <div class="register-link">
+        <a href="recuperar.php">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <div class="register-link">
+        ¿No tenés cuenta? <a href="#" onclick="mostrarRegistro()">Registrate acá</a>
+      </div>
+    </div>
+
+    <!-- FORMULARIO REGISTRO -->
+    <div id="form-register" style="display: none;">
+      <h2>Crear Cuenta</h2>
+      <form id="registroForm" action="procesar_registro.php" method="POST" novalidate>
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" required />
+
+        <label for="email_reg">Correo electrónico</label>
+        <input type="email" id="email_reg" name="email" required />
+
+        <label for="password_reg">Contraseña</label>
+        <div class="inline-input">
+         <input
+          type="password"
+          id="password_reg"
+          name="password"
+          required
+          minlength="8"
+          maxlength="72"
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,72}$"
+          title="Mínimo 8 caracteres, incluir mayúscula, minúscula, número y símbolo. Sin espacios."
+          oninput="validarPassword()"
+        />
+
+          <span class="toggle-eye" onclick="toggleShow('password_reg')">mostrar</span>
+        </div>
+        <ul id="pwd-reqs" class="pwd-reqs">
+          <li id="r-len" class="bad">Al menos 8 caracteres</li>
+          <li id="r-low" class="bad">Al menos 1 minúscula (a-z)</li>
+          <li id="r-up"  class="bad">Al menos 1 mayúscula (A-Z)</li>
+          <li id="r-num" class="bad">Al menos 1 número (0-9)</li>
+          <li id="r-sym" class="bad">Al menos 1 símbolo (!@#$%...)</li>
+          <li id="r-spc" class="bad">Sin espacios</li>
+        </ul>
+
+        <label for="password_conf">Confirmar contraseña</label>
+        <div class="inline-input">
+          <input
+            type="password"
+            id="password_conf"
+            required
+            oninput="validarPassword()"
+          />
+          <span class="toggle-eye" onclick="toggleShow('password_conf')">mostrar</span>
+        </div>
+        <div id="matchError" class="error-text">Las contraseñas no coinciden.</div>
+        <div class="hint">Consejo: evitá reutilizar contraseñas. Usá un gestor si es posible.</div>
+
+        <button id="btn-registrar" class="btn-login" type="submit" disabled>Registrarme</button>
+      </form>
+      <div class="register-link">
+        ¿Ya tenés cuenta? <a href="#" onclick="mostrarLogin()">Volver a Iniciar Sesión</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function mostrarRegistro() {
+      document.getElementById("form-login").style.display = "none";
+      document.getElementById("form-register").style.display = "block";
+    }
+
+    function mostrarLogin() {
+      document.getElementById("form-register").style.display = "none";
+      document.getElementById("form-login").style.display = "block";
+    }
+
+    function toggleShow(id){
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function setState(el, ok){
+      el.classList.toggle("ok", ok);
+      el.classList.toggle("bad", !ok);
+    }
+
+    function validarPassword(){
+      const pwd = document.getElementById("password_reg").value;
+      const conf = document.getElementById("password_conf").value;
+
+      const okLen = pwd.length >= 8 && pwd.length <= 72;
+      const okLow = /[a-z]/.test(pwd);
+      const okUp  = /[A-Z]/.test(pwd);
+      const okNum = /\d/.test(pwd);
+      const okSym = /[^A-Za-z0-9]/.test(pwd);
+      const okSpc = !/\s/.test(pwd);
+
+      setState(document.getElementById("r-len"), okLen);
+      setState(document.getElementById("r-low"), okLow);
+      setState(document.getElementById("r-up"), okUp);
+      setState(document.getElementById("r-num"), okNum);
+      setState(document.getElementById("r-sym"), okSym);
+      setState(document.getElementById("r-spc"), okSpc);
+
+      const allOk = okLen && okLow && okUp && okNum && okSym && okSpc;
+      const match = pwd === conf && conf.length > 0;
+
+      const btn = document.getElementById("btn-registrar");
+      const matchError = document.getElementById("matchError");
+
+      btn.disabled = !(allOk && match);
+      matchError.style.display = match || conf.length === 0 ? "none" : "block";
+    }
+
+    // Validación final al enviar (por seguridad en el front)
+    document.getElementById("registroForm").addEventListener("submit", function(e){
+      const pwd = document.getElementById("password_reg");
+      const conf = document.getElementById("password_conf");
+
+      // Respetar constraints nativas + nuestro patrón
+      if(!pwd.checkValidity()){
+        e.preventDefault();
+        pwd.reportValidity();
+        return;
+      }
+      if(pwd.value !== conf.value){
+        e.preventDefault();
+        document.getElementById("matchError").style.display = "block";
+        conf.focus();
+      }
+    });
+  </script>
+</body>
+</html>
